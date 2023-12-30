@@ -1,0 +1,22 @@
+{
+    "layers": [
+        {
+            "type": "input",
+            "neurons": 3
+        },
+        {
+            "type": "dense",
+            "neurons": 3,
+            "activation": "sigmoid",
+            "weights": [[0.1, 0.2, 0.3], [0.1, 0.2, 0.3], [0.1, 0.2, 0.3]],
+            "biases": [1.0, 2.0, 3.0]
+        },
+        {
+            "type": "output",
+            "neurons": 3,
+            "activation": "softmax",
+            "weights": [[0.1, 0.2, 0.3], [0.1, 0.2, 0.3], [0.1, 0.2, 0.3]],
+            "biases": [1.0, 2.0, 3.0]
+        }
+    ]
+}
