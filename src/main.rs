@@ -25,18 +25,19 @@ impl Neuron {
 //struct  for defining layers
 struct Layer {
     neurons: Vec<Neuron>,
-    activation_function: ,//set layer assigned function ***
+    activation: ActivationFunction,//set layer assigned function ***
 }
 
 impl Layer{
+    //forward propagation of a layer
+    fn forward_propagation(inputs: Vec<f64>) -> Vec<f64> {
 
+    }
 }
 
 //struct for defining neural network
 struct NeuralNetwork {
-    layers: Vec<Vec<layer>>,
-    layers_weights: Vec<Vec<f64>>,
-    layers_biases: Vec<Vec<f64>>,
+    layers: Vec<Layer>,
 
 }
 
@@ -69,8 +70,21 @@ impl NeuralNetwork {
 
 //---main function---
 fn main() {
+    //Training Data File
+    let training_data: &str = "training_data.csv";
+    //Model file name for loading or saving
+    let model: &str = "fruit_classification_0001.json";
 
+    //Create a new neural network, set size and layer functions
+    let network: NeuralNetwork = NeuralNetwork::new_network();
     
+    //train network
+
+    //output training data
+
+    //inference network
+
+    //output prediction
 }
 
 //---functions---
