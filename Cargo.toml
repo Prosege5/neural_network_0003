@@ -1,4 +1,4 @@
-workspace = { members = ["testing/nodes"] }
+workspace = { members = [ "testing/layers","testing/nodes"] }
 [package]
 name = "neural_network_0003"
 version = "0.1.0"
