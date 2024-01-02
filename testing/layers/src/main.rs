@@ -53,6 +53,10 @@ struct Layer {
     neurons: Vec<Neuron>,
 }
 impl Layer {
+    //fn to create a new layer
+    fn new_layer(type: Layer_Type, layer_size: usize, activation: Activation_Function) -> Layer {
+
+    }
 
 }
 
