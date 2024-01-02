@@ -31,7 +31,7 @@ impl Node {
             bias: 1.0,
         }
     }
-    //generate random weights and biases
+    //generate random weights and bias
     fn gen_w_and_b(&mut self) {
         let mut rng = rand::thread_rng();
         let dec_places: u32 = 6;

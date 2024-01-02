@@ -32,11 +32,25 @@ struct Neuron {
     bias: f64,
 }
 impl Neuron {
+    //fn to create a new neuron
+    fn new_neuron() -> Neuron {
 
+    }
+    //generate random weights and bias
+    fn gen_w_and_b(&mut self) {
+
+    }
+    //update weights and bias?? used with backward propagation??
+    fn update_w_and_b(&mut self) {
+
+    }
 }
 //Layer struct and methods
 struct Layer {
-    type: 
+    type: Layer_Type,
+    layer_size: usize,
+    activation: Activation_Function,
+    neurons: Vec<Neuron>,
 }
 impl Layer {
 
@@ -46,6 +60,13 @@ impl Layer {
 fn main() {
     //create inputs vec from csv file
     let inputs: Vec<Vec<f64>> = load_inputs("inputs.csv");
+
+    //create an inputs layer
+    let mut input_layer: Layer = Layer::new_layer(Layer_Type::Input);
+    //create a hidden layer
+    let mut hidden_layer: Layer = Layer::new_layer(Layer_Type::Hidden);
+    //create a output layer
+    let mut output_layer: Layer = Layer::new_layer(Layer_Type::Output);
 }
 
 //* Functions */
