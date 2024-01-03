@@ -17,6 +17,7 @@ enum Activation_Function {
     Sigmoid,
     ReLU,
     Softmax,
+    None,
 }
 // Layer type enum for Layer struct
 enum Layer_Type {
@@ -57,23 +58,69 @@ impl Layer {
     fn new_layer(type: Layer_Type, layer_size: usize, activation: Activation_Function) -> Layer {
 
     }
+    // forward propagation
+    fn forward_propagation(&self, inputs: Vec<f64>) -> Vec<f64> {
 
+    }
+    // Sigmoid Function
+    fn sigmoid(output: f64) -> f64 {
+
+    }
+    // ReLU Function
+    fn relu(output: f64) -> f64 {
+
+    }
+    // Softmax Function
+    fn softmax(output: f64) -> f64 {
+
+    }
+    ////save model
+    fn save_layer() -> {
+
+    }
+    ////load model
+    fn load_layer() -> {
+
+    }
 }
 
 //* Main Function */
 fn main() {
     //create inputs vec from csv file
-    let inputs: Vec<Vec<f64>> = load_inputs("inputs.csv");
+    let inputs: Vec<Vec<f64>> = load_inputs("inputs.csv", 3);
 
-    //create an inputs layer
-    let mut input_layer: Layer = Layer::new_layer(Layer_Type::Input);
+    //create a inputs layer
+    let mut input_layer: Layer = Layer::new_layer(Layer_Type::Input, 3, Activation_Function::None);
     //create a hidden layer
-    let mut hidden_layer: Layer = Layer::new_layer(Layer_Type::Hidden);
+    let mut hidden_layer: Layer = Layer::new_layer(Layer_Type::Hidden, 3, Activation_Function::Sigmoid);
     //create a output layer
-    let mut output_layer: Layer = Layer::new_layer(Layer_Type::Output);
+    let mut output_layer: Layer = Layer::new_layer(Layer_Type::Output, 3, Activation_Function::Softmax);
+
+    //manually feed forward each layer to generate output
+    let output: Vec<f64> = output_layer.forward_propagation(
+        hidden_layer.forward_propagation(
+            input_layer.forward_propagation()
+        )
+    );
+
+
 }
 
 //* Functions */
 fn load_inputs(file_name: &str) -> Vec<Vec<f64>> {
 
 }
+
+//* Training methods - Back propagation */
+    //Mean Squared Error (MSE) Loss
+    fn mse() -> {
+
+    }
+    //Partial Derivative
+    fn partial_derivative() -> {
+
+    }
+    //Stochastic Gradient Descent (SGD) 
+    fn sgd() -> {
+        
+    }
