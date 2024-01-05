@@ -12,16 +12,16 @@ use rand::Rng;
 //use serde_json;
 
 //* Enums */
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 // Activation function enum for Layer struct
 enum ActivationFunction {
     Sigmoid,
 //    ReLU,
-    Softmax,
+//    Softmax,
     None,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 // Layer type enum for Layer struct
 enum LayerType {
     Input,
@@ -90,21 +90,41 @@ impl Layer {
         }
     }
     // forward propagation
-//    fn forward_propagation(&self, inputs: Vec<f64>) -> Vec<f64> {
-//
-//    }
-//    // Sigmoid Function
-//    fn sigmoid(output: f64) -> f64 {
-//
-//    }
+    fn forward_propagation(&self, inputs: &Vec<f64>) -> Vec<f64> {
+        let outputs: Vec<f64> = self.neurons.iter().map(|neuron| {
+            let neuron_output = neuron.weights.iter().zip(inputs.iter())
+                .map(|(weight, input)| weight * input)
+                .sum::<f64>() + neuron.bias;
+            Layer::apply_activation(neuron_output, &self.activation)
+        }).collect();
+
+        if self.layer_type == LayerType::Output {
+            Layer::softmax(&outputs).iter().map(|&x| round_f64(x, 6)).collect()
+        } else {
+            outputs
+        }
+    }
+
+    //Apply Activation function
+    fn apply_activation(output: f64, function: &ActivationFunction) -> f64 {
+        match function {
+            ActivationFunction::Sigmoid => Layer::sigmoid(output),
+            ActivationFunction::None => output, 
+        }
+    }
+    // Sigmoid Function
+    fn sigmoid(output: f64) -> f64 {
+        1.0 / (1.0 + (output).exp())
+    }
 //    // ReLU Function
 //    fn relu(output: f64) -> f64 {
 //
 //    }
-//    // Softmax Function
-//    fn softmax(output: f64) -> f64 {
-//
-//    }
+    // Softmax Function
+    fn softmax(outputs: &Vec<f64>) -> Vec<f64> {
+        let exp_sum: f64 = outputs.iter().map(|x| x.exp()).sum();
+        outputs.iter().map(|x| x.exp() / exp_sum).collect()
+    }
 //    ////save model
 //    fn save_layer() -> {
 //
@@ -118,25 +138,31 @@ impl Layer {
 //* Main Function */
 fn main() {
     //create inputs vec from csv file
-//    let inputs: Vec<Vec<f64>> = load_inputs("inputs.csv", 3);
+//    let inputs_csv: Vec<Vec<f64>> = load_inputs("inputs.csv", 3);
+    let inputs_testing: Vec<f64> = vec![1.0, 0.9, 1.5];
 
     //create a inputs layer
     let input_layer: Layer = Layer::new_layer(LayerType::Input, 3, 3, ActivationFunction::None);
     //create a hidden layer
     let hidden_layer: Layer = Layer::new_layer(LayerType::Hidden, 3, 3, ActivationFunction::Sigmoid);
     //create a output layer
-    let output_layer: Layer = Layer::new_layer(LayerType::Output, 3, 3, ActivationFunction::Softmax);
+    let output_layer: Layer = Layer::new_layer(LayerType::Output, 3, 3, ActivationFunction::None);
 
     //manually feed forward each layer to generate output
-//    let output: Vec<f64> = output_layer.forward_propagation(
-//        hidden_layer.forward_propagation(
-//            input_layer.forward_propagation()
-//        )
-//    );
+    let output: Vec<f64> = output_layer.forward_propagation(
+        &hidden_layer.forward_propagation(
+            &input_layer.forward_propagation(&inputs_testing)
+        )
+    );
+
+    //print layer structs
     println!("Input Layer: {:?}\n", input_layer);
     println!("Hidden Layer: {:?}\n", hidden_layer);
     println!("Output Layer: {:?}\n", output_layer);
-
+    //print inputs
+    println!("Inputs: {:?}\n", inputs_testing);
+    //print outputs from feed forward
+    println!("Output: {:?}\n", output);
 }
 
 //* Funct//ions */
