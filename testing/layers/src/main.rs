@@ -3,10 +3,11 @@
 
 //* Crates */
 use rand::Rng;
-//use std::error::Error;
+use std::error::Error;
 //use std::fs;
 //use std::fs::File;
 //use std::io::Write;
+use csv::ReaderBuilder;
 //use csv::{Reader, Writer};
 //use serde::{ Deserialize, Serialize };
 //use serde_json;
@@ -59,7 +60,7 @@ impl Neuron {
 //    }
 }
 
-#[warn(dead_code)]
+//#[warn(dead_code)]
 #[derive(Debug)]
 //Layer struct and methods
 struct Layer {
@@ -137,9 +138,27 @@ impl Layer {
 
 //* Main Function */
 fn main() {
-    //create inputs vec from csv file
-//    let inputs_csv: Vec<Vec<f64>> = load_inputs("inputs.csv", 3);
-    let inputs_testing: Vec<f64> = vec![1.0, 0.9, 1.5];
+    //create inputs vec from csv file, first 3 rows, skip 0
+    let inputs_csv = match load_inputs("inputs.csv", 3, 1) {
+        Ok(inputs) => inputs,
+        Err(e) => {
+            eprintln!("Failed to read CSV: {}", e);
+            return;
+        }
+    };
+    //shift input data by mean value
+    let shifted_data: Vec<Vec<f64>> = shift_data(&inputs_csv);
+    //create a vec of the probabilities from the csv file for training
+    let probs_csv = match load_inputs("inputs.csv", 3, 4) {
+        Ok(probs) => probs,
+        Err(e) => {
+            eprintln!("Failed to read CSV: {}", e);
+            return;
+        }
+    };
+
+    //outputs vector for training
+    let mut outputs: Vec<Vec<f64>> = Vec::new();
 
     //create a inputs layer
     let input_layer: Layer = Layer::new_layer(LayerType::Input, 3, 3, ActivationFunction::None);
@@ -148,31 +167,88 @@ fn main() {
     //create a output layer
     let output_layer: Layer = Layer::new_layer(LayerType::Output, 3, 3, ActivationFunction::None);
 
-    //manually feed forward each layer to generate output
-    let output: Vec<f64> = output_layer.forward_propagation(
-        &hidden_layer.forward_propagation(
-            &input_layer.forward_propagation(&inputs_testing)
-        )
-    );
-
+    //print inputs and probabilities
+    println!("\nLoaded Inputs: {:?}", inputs_csv);
+    println!("Shifted Data: {:?}", shifted_data);
+    println!("Probabilities: {:?}\n", probs_csv);
     //print layer structs
     println!("Input Layer: {:?}\n", input_layer);
     println!("Hidden Layer: {:?}\n", hidden_layer);
     println!("Output Layer: {:?}\n", output_layer);
-    //print inputs
-    println!("Inputs: {:?}\n", inputs_testing);
+
+    //manually feed forward through data table inputs_csv
+    for input in shifted_data {
+        let output = output_layer.forward_propagation(
+            &hidden_layer.forward_propagation(
+                &input_layer.forward_propagation(&input)
+            )
+        );
+        outputs.push(output);
+    }
+
     //print outputs from feed forward
-    println!("Output: {:?}\n", output);
+    println!("Output: {:?}\n", outputs);
+
+    //training the network functionality
+
 }
 
-//* Funct//ions */
-//fn load_inputs(file_name: &str) -> Vec<Vec<f64>> {
-//
-//}
+//* Functions */
+fn load_inputs(file_path: &str, num_columns: usize, skip_columns: usize) -> Result<Vec<Vec<f64>>, Box<dyn Error>> {
+    let mut reader = ReaderBuilder::new()
+        .has_headers(true)
+        .from_path(file_path)?;
+
+    let mut data = Vec::new();
+
+    for result in reader.records() {
+        let record = result?;
+        let mut row: Vec<f64> = Vec::new();
+
+        for (i, field) in record.iter().enumerate() {
+            if i < skip_columns {
+                continue;
+            }
+            if i >= skip_columns + num_columns {
+                break;
+            }
+
+            match field.parse::<f64>() {
+                Ok(num) => row.push(num),
+                Err(_) => return Err(format!("Invalid floa literal at column {}: '{}'", i + 1, field).into()),
+            }
+        }
+
+        data.push(row);
+    }
+
+    Ok(data)
+}
 
 fn round_f64(value: f64, decimal_places: u32) -> f64 {
     let factor = 10f64.powi(decimal_places as i32);
     (value * factor).round() / factor
+}
+
+fn shift_data(inputs: &Vec<Vec<f64>>) -> Vec<Vec<f64>> {
+    let mut means = vec![0.0; inputs.len()];
+    let rows = inputs.len();
+
+    for row in inputs {
+        for (i, &value) in row.iter().enumerate() {
+            means[i] += value;
+        }
+    }
+
+    for mean in &mut means {
+        *mean /= rows as f64;
+    }
+
+    inputs.into_iter()
+        .map(|row| row.into_iter().enumerate()
+            .map(|(i, value)| round_f64(value - means[i], 2))
+            .collect())
+        .collect()
 }
 
 //* Training methods - Back propagation */
