@@ -100,7 +100,7 @@ impl Layer {
         }).collect();
 
         if self.layer_type == LayerType::Output {
-            Layer::softmax(&outputs).iter().map(|&x| round_f64(x, 6)).collect()
+            Layer::softmax(&outputs).iter().map(|&x| round_f64(x, 2)).collect()
         } else {
             outputs
         }
@@ -190,7 +190,8 @@ fn main() {
     println!("Output: {:?}\n", outputs);
 
     //training the network functionality
-
+    let mse_loss: Vec<f64> = mean_squared_error(&probs_csv, &outputs);
+    println!("Loss: {:?}", &mse_loss);
 }
 
 //* Functions */
@@ -230,11 +231,11 @@ fn round_f64(value: f64, decimal_places: u32) -> f64 {
     (value * factor).round() / factor
 }
 
-fn shift_data(inputs: &Vec<Vec<f64>>) -> Vec<Vec<f64>> {
-    let mut means = vec![0.0; inputs.len()];
-    let rows = inputs.len();
+fn get_means_cols(table: &Vec<Vec<f64>>) -> Vec<f64> {
+    let mut means = vec![0.0; table.len()];
+    let rows = table.len();
 
-    for row in inputs {
+    for row in table {
         for (i, &value) in row.iter().enumerate() {
             means[i] += value;
         }
@@ -243,6 +244,12 @@ fn shift_data(inputs: &Vec<Vec<f64>>) -> Vec<Vec<f64>> {
     for mean in &mut means {
         *mean /= rows as f64;
     }
+
+    means
+}
+
+fn shift_data(inputs: &Vec<Vec<f64>>) -> Vec<Vec<f64>> {
+    let means: Vec<f64> = get_means_cols(&inputs);
 
     inputs.into_iter()
         .map(|row| row.into_iter().enumerate()
@@ -253,9 +260,20 @@ fn shift_data(inputs: &Vec<Vec<f64>>) -> Vec<Vec<f64>> {
 
 //* Training methods - Back propagation */
 //Mean Squared Error (MSE) Loss
-//fn mse() -> {
-//
-//}
+fn mean_squared_error(pred_true: &Vec<Vec<f64>>, pred_guess: &Vec<Vec<f64>>) ->  Vec<f64> {
+    let rows = pred_true.len();
+    let cols = pred_true[0].len();
+    let mut squared_diff_sum = vec![0.0; cols];
+
+    for (sub_true, sub_guess) in pred_true.iter().zip(pred_guess.iter()) {
+        for (i, (&val_true, &val_guess)) in sub_true.iter().zip(sub_guess.iter()).enumerate() {
+            squared_diff_sum[i] += (val_true - val_guess).powi(2);
+        }
+    }
+
+    squared_diff_sum.iter().map(|&sum| round_f64(sum / rows as f64, 2)).collect()
+}
+
 //Partial Derivative
 //fn partial_derivative() -> {
 //
