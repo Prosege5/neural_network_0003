@@ -16,7 +16,7 @@ struct Network {
 }
 
 impl Network {
-    
+
 }
 //---main function---
 fn main() {
